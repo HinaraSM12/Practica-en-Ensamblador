@@ -1,0 +1,1039 @@
+Microsoft (R) Macro Assembler Version 14.32.31332.0	    07/03/22 20:06:13
+PRACTICA.asm						     Page 1 - 1
+
+
+				; AddTwo.asm - adds two 32-bit integers.
+				; Chapter 3 example
+
+				INCLUDE irvine32.inc
+			      C ; Include file for Irvine32.lib             (Irvine32.inc)
+			      C 
+			      C ;OPTION CASEMAP:NONE		; optional: make identifiers case-sensitive
+			      C 
+			      C INCLUDE SmallWin.inc		; MS-Windows prototypes, structures, and constants
+			      C .NOLIST
+			      C .LIST
+			      C 
+			      C INCLUDE VirtualKeys.inc
+			      C ; VirtualKeys.inc
+			      C .NOLIST
+			      C .LIST
+			      C 
+			      C 
+			      C .NOLIST
+			      C .LIST
+			      C 
+
+				.386
+				.model flat,stdcall
+PRACTICA.asm(7) : warning A4011:multiple .MODEL directives found : .MODEL ignored
+				.stack 4096
+				ExitProcess proto,dwExitCode:dword
+
+ 00000000			.data
+				;DEFINICIÓN DE VARIABLES
+				;COMENTARIOS
+ 00000000 20 20 44 45 53	printdesv byte "  DESVIACION   ",0
+	   56 49 41 43 49
+	   4F 4E 20 20 20
+	   00
+ 00000010 20 20 20 20 20	printmed byte "     MEDIA     ",0
+	   4D 45 44 49 41
+	   20 20 20 20 20
+	   00
+ 00000020 20 20 20 20 50	printper byte "    PEARSON    ",0
+	   45 41 52 53 4F
+	   4E 20 20 20 20
+	   00
+ 00000030 20 20 20 20 20	tetr byte "         ",0
+	   20 20 20 20 00
+ 0000003A 20 00			espac byte " ",0
+ 0000003C 20 7C 7C 20 20	encab byte " ||        X        ||       Y1        ||       Y2        ||",0
+	   20 20 20 20 20
+	   20 58 20 20 20
+	   20 20 20 20 20
+	   7C 7C 20 20 20
+	   20 20 20 20 59
+	   31 20 20 20 20
+	   20 20 20 20 7C
+	   7C 20 20 20 20
+	   20 20 20 59 32
+	   20 20 20 20 20
+	   20 20 20 7C 7C
+	   00
+ 00000079 20 2D 2D 2D 2D	rayitas  byte " -----------------------------------------------------------",0
+	   2D 2D 2D 2D 2D
+	   2D 2D 2D 2D 2D
+	   2D 2D 2D 2D 2D
+	   2D 2D 2D 2D 2D
+	   2D 2D 2D 2D 2D
+	   2D 2D 2D 2D 2D
+	   2D 2D 2D 2D 2D
+	   2D 2D 2D 2D 2D
+	   2D 2D 2D 2D 2D
+	   2D 2D 2D 2D 2D
+	   2D 2D 2D 2D 2D
+	   00
+ 000000B6 0A			Bienvenida0 BYTE 10, 6 dup(9),"BIENVENIDO A NUESTO PROGRAMA",10,10,13,0
+	   00000006 [
+	    09
+	   ] 42 49 45 4E
+	   56 45 4E 49 44
+	   4F 20 41 20 4E
+	   55 45 53 54 4F
+	   20 50 52 4F 47
+	   52 41 4D 41 0A
+	   0A 0D 00
+ 000000DD 41 53 49 47 4E	Bienvenida1 byte "ASIGNATURA: ARQUITECTURA DE COMPUTADORES", 10,10,13,0
+	   41 54 55 52 41
+	   3A 20 41 52 51
+	   55 49 54 45 43
+	   54 55 52 41 20
+	   44 45 20 43 4F
+	   4D 50 55 54 41
+	   44 4F 52 45 53
+	   0A 0A 0D 00
+ 00000109 41 A4 4F 3A 20	Bienvenida2 byte "A",164,"O: 2022",10,10,13,0
+	   32 30 32 32 0A
+	   0A 0D 00
+ 00000116 53 45 4D 45 53	Bienvenida3 byte "SEMESTRE: 2022-1",10,10,13,0
+	   54 52 45 3A 20
+	   32 30 32 32 2D
+	   31 0A 0A 0D 00
+ 0000012A 48 69 6E 61 72	Bienvenida4 byte "Hinara Pastora Sanchez Mata    CE 1098908",10,10,13,0
+	   61 20 50 61 73
+	   74 6F 72 61 20
+	   53 61 6E 63 68
+	   65 7A 20 4D 61
+	   74 61 20 20 20
+	   20 43 45 20 31
+	   30 39 38 39 30
+	   38 0A 0A 0D 00
+ 00000157 4A 75 61 6E 20	Bienvenida5 byte "Juan Jose Ospina Erazo         CC 1006071024",10,10,13,0
+	   4A 6F 73 65 20
+	   4F 73 70 69 6E
+	   61 20 45 72 61
+	   7A 6F 20 20 20
+	   20 20 20 20 20
+	   20 43 43 20 31
+	   30 30 36 30 37
+	   31 30 32 34 0A
+	   0A 0D 00
+ 00000187 4C 75 7A 61 72	Bienvenida6 byte "Luzarait Ca",164,"as Quintero        CC 1000290584",10,10,13,0
+	   61 69 74 20 43
+	   61 A4 61 73 20
+	   51 75 69 6E 74
+	   65 72 6F 20 20
+	   20 20 20 20 20
+	   20 43 43 20 31
+	   30 30 30 32 39
+	   30 35 38 34 0A
+	   0A 0D 00
+ 000001B7 53 65 62 61 73	Bienvenida7 byte "Sebastian Aguinaga Velasquez   CC 1000105467",10,10,13,0
+	   74 69 61 6E 20
+	   41 67 75 69 6E
+	   61 67 61 20 56
+	   65 6C 61 73 71
+	   75 65 7A 20 20
+	   20 43 43 20 31
+	   30 30 30 31 30
+	   35 34 36 37 0A
+	   0A 0D 00
+ 000001E7 4E 75 65 73 74	Explicacion byte "Nuestro programa recibe valores de Y1 y Y2, los organiza en una tabla y luego les calcula su media, desviacion estandar y correlacion de Pearson",0
+	   72 6F 20 70 72
+	   6F 67 72 61 6D
+	   61 20 72 65 63
+	   69 62 65 20 76
+	   61 6C 6F 72 65
+	   73 20 64 65 20
+	   59 31 20 79 20
+	   59 32 2C 20 6C
+	   6F 73 20 6F 72
+	   67 61 6E 69 7A
+	   61 20 65 6E 20
+	   75 6E 61 20 74
+	   61 62 6C 61 20
+	   79 20 6C 75 65
+	   67 6F 20 6C 65
+	   73 20 63 61 6C
+	   63 75 6C 61 20
+	   73 75 20 6D 65
+	   64 69 61 2C 20
+	   64 65 73 76 69
+	   61 63 69 6F 6E
+	   20 65 73 74 61
+	   6E 64 61 72 20
+	   79 20 63 6F 72
+	   72 65 6C 61 63
+	   69 6F 6E 20 64
+	   65 20 50 65 61
+	   72 73 6F 6E 00
+ 00000278 49 6E 67 72 65	Mensaje1 byte "Ingrese el numero de datos requeridos: ",0 
+	   73 65 20 65 6C
+	   20 6E 75 6D 65
+	   72 6F 20 64 65
+	   20 64 61 74 6F
+	   73 20 72 65 71
+	   75 65 72 69 64
+	   6F 73 3A 20 00
+ 000002A0 49 6E 67 72 65	MensajeY1 byte "Ingrese los valores de Y1: ",0
+	   73 65 20 6C 6F
+	   73 20 76 61 6C
+	   6F 72 65 73 20
+	   64 65 20 59 31
+	   3A 20 00
+ 000002BC 49 6E 67 72 65	MensajeY2 byte "Ingrese los valores de Y2: ",0
+	   73 65 20 6C 6F
+	   73 20 76 61 6C
+	   6F 72 65 73 20
+	   64 65 20 59 32
+	   3A 20 00
+ 000002D8 0A			final Byte 10, 6 dup(9),"!GRACIAS!, VUELVA PRONTO",10,10,13,0
+	   00000006 [
+	    09
+	   ] 21 47 52 41
+	   43 49 41 53 21
+	   2C 20 56 55 45
+	   4C 56 41 20 50
+	   52 4F 4E 54 4F
+	   0A 0A 0D 00
+ 000002FB 20 7C 7C 20 00	sep byte " || ",0
+
+				;ARRAYS
+ 00000300  0000000A [		arraysito REAL8 10 DUP(?)
+	    0000000000000000
+	   ]
+ 00000350  0000000A [		arraysitoY1 REAL8 10 DUP(?)
+	    0000000000000000
+	   ]
+ 000003A0  0000000A [		arraysitoY2 REAL8 10 DUP(?)
+	    0000000000000000
+	   ]
+
+				;VARIABLES
+ 000003F0 00000000		r Real4 ?
+ 000003F4 00000000		multi Real4 ?
+ 000003F8 00000000		multi2 Real4 ?
+ 000003FC 3F800000		n1 Real4 1.0
+ 00000400 00000000		n2 Real4 ?
+ 00000404 3F800000		x Real4 1.0
+ 00000408 00000000		cont1 real4 0.0
+ 0000040C 00000000		cont2 real4 0.0
+ 00000410 00000000		media real4 ?
+ 00000414 00000000		base1 real4 ?
+ 00000418 00000000		base2 real4 ?
+ 0000041C 00000000		potencia1 real4 0.0
+ 00000420 00000000		potencia2 real4 0.0
+ 00000424 00000000		desv1 real4 0.0
+ 00000428 00000000		desv2 real4 0.0
+ 0000042C 00000000		resultado1 real4 0.0
+ 00000430 00000000		resultado2 real4 0.0
+ 00000434 00000000		resultado3 real4 0.0
+ 00000438 00000000		pear real4 0.0
+ 0000043C 00000000		sumpp real4 0.0
+ 00000440 00000000		divi real4 0.0
+ 00000444 00000000		rest real4 0.0
+
+ 00000000			.code
+ 00000000			main proc
+					;MENSAJES DE BIENVENIDA
+ 00000000  BA 000000B6 R		mov	edx, offset	Bienvenida0					;guarda en edx el mensaje de bienvenida inicial	
+ 00000005  B8 00000001			mov eax,blue								;guarda en eax el color azul que sera utilizada para configurar el color del texto
+ 0000000A  E8 00000000 E		call SetTextColor							;se hace un llamado que establece el color del texto
+ 0000000F  E8 00000000 E		call writestring							;escribe el mensaje de bienvenida inicial
+ 00000014  E8 00000000 E		call crlf									;Llama la función crlf para añadir un salto de línea en pantala 
+ 00000019  B8 0000000F			mov eax,white								;guarda en eax el color blanco que sera utilizada para configurar el color del texto
+ 0000001E  E8 00000000 E		call SetTextColor							;se hace un llamado que establece el color del texto
+ 00000023  BA 000000DD R		mov	edx, offset	Bienvenida1					;Mueve a el registro edx la dirección de memoria de Bienvenida1
+ 00000028  E8 00000000 E		call writestring							;Escribe en pantalla el comentario Bienvenida1
+ 0000002D  BA 00000109 R		mov	edx, offset	Bienvenida2					;Mueve a el registro edx la dirección de memoria de Bienvenida2
+ 00000032  E8 00000000 E		call writestring							;Escribe en pantalla el comentario Bienvenida2
+ 00000037  BA 00000116 R		mov	edx, offset	Bienvenida3					;Mueve a el registro edx la dirección de memoria de Bienvenida3
+ 0000003C  E8 00000000 E		call writestring							;Escribe en pantalla el comentario Bienvenida3
+ 00000041  BA 0000012A R		mov	edx, offset	Bienvenida4					;Mueve a el registro edx la dirección de memoria de Bienvenida4
+ 00000046  E8 00000000 E		call writestring							;Escribe en pantalla el comentario Bienvenida4
+ 0000004B  BA 00000157 R		mov	edx, offset	Bienvenida5					;Mueve a el registro edx la dirección de memoria de Bienvenida5
+ 00000050  E8 00000000 E		call writestring							;Escribe en pantalla el comentario Bienvenida5
+ 00000055  BA 00000187 R		mov	edx, offset	Bienvenida6					;Mueve a el registro edx la dirección de memoria de Bienvenida6
+ 0000005A  E8 00000000 E		call writestring							;Escribe en pantalla el comentario Bienvenida6
+ 0000005F  BA 000001B7 R		mov	edx, offset	Bienvenida7					;Mueve a el registro edx la dirección de memoria de Bienvenida7
+ 00000064  E8 00000000 E		call writestring							;Escribe en pantalla el comentario Bienvenida7
+ 00000069  BA 000001E7 R		mov	edx, offset	Explicacion					;Mueve a el registro edx la dirección de memoria de Explicacion
+ 0000006E  E8 00000000 E		call writestring							;Escribe en pantalla el comentario Explicacion
+ 00000073  E8 00000000 E		call crlf									;Llama la función crlf para añadir un salto de línea en pantalla 
+ 00000078  E8 00000000 E		call crlf									;Llama la función crlf para añadir un salto de línea en pantalla 
+ 0000007D  E8 00000000 E		call crlf									;Llama la función crlf para añadir un salto de línea en pantalla 
+
+					;MENSAJE DE INGRESO DATOS
+ 00000082  BA 00000278 R		mov edx, offset Mensaje1					;Mueve al registro edx la dirección de memoria de Mensaje1
+ 00000087  E8 00000000 E		call writestring							;Escribe en pantalla el comentario Mensaje1
+ 0000008C  E8 00000000 E		call readdec								;Guarda en eax el valor obtenido en consola
+
+					;CONTADOR A PARTIR DEL #DE DATOS			
+ 00000091  A3 000003F0 R		mov r, eax									;Guarda en r el valor de eax
+ 00000096  8B 0D 000003F0 R		mov	ecx, r									;Guarda en ecx el valor de r, contador del siguiente loop
+ 0000009C  33 DB			xor ebx, ebx 								;Convierte a ebx en 0
+ 0000009E				datitosx:									;Inicia el ciclo
+ 0000009E  D9 05 00000404 R			fld x									;Carga a x en la pila
+ 000000A4  DD 9B 00000300 R			fstp arraysito[ebx]						;Guarda x en la posición ebx del array arraysito
+ 000000AA  83 C3 08				add ebx, 08h							;Suma 8 a ebx en hexadecimal para apuntar al indice de posicion inicial de cada elemento del array
+ 000000AD  D9 05 00000404 R			fld x									;Cargo a x en la pila
+ 000000B3  D8 05 000003FC R			fadd n1									;A x le suma n1=1
+ 000000B9  D9 1D 00000404 R			fstp x									;Guarda el valor anterior en x
+ 000000BF  9B DB E3				finit									;Vacía la pila
+ 000000C2  E2 DA			loop datitosx								;Decrementa ecx y termina el ciclo cuando llegue a 0
+
+					;OBTENCIÓN DE Y1 Y Y2 A PARTR DE CONSOLA
+ 000000C4  33 DB			xor ebx, ebx								;Convierte a ebx en 0
+ 000000C6  8B 0D 000003F0 R		mov ecx, r									;Guarda en ecx el valor de r, contador del siguiente loop
+ 000000CC				datos:										;Inicia el ciclo
+ 000000CC  BA 000002A0 R			mov edx, offset MensajeY1				;Guarda en edx el MensajeY1
+ 000000D1  E8 00000000 E			call writestring						;Escribe en pantalla el mensaje anterior
+ 000000D6  E8 00000000 E			call ReadFloat							;Lee un float de la consola
+ 000000DB  DD 9B 00000350 R			fstp arraysitoY1[ebx]					;Guarda en la posición ebx de arraysitoY1 el valor obtenido de consola
+ 000000E1  BA 000002BC R			mov edx, offset MensajeY2				;Guarda en edx el MensajeY2
+ 000000E6  E8 00000000 E			call writestring						;Escribe en pantalla el mensaje anterior
+ 000000EB  E8 00000000 E			call ReadFloat							;Lee un float de la consola
+ 000000F0  DD 9B 000003A0 R			fstp arraysitoY2[ebx]					;Guarda en la posición ebx de arraysitoY2 el valor obtenido de consola
+ 000000F6  83 C3 08				add	ebx,8								;Sumo 8 a ebx para apuntar al indice de posicion inicial de cada elemento del array
+ 000000F9  9B DB E3				finit									;Vacía la pila
+ 000000FC  E2 CE			loop datos									;Decrementa ecx y termina el ciclo cuando llegue a 0
+
+					;IMPRESIÓN DE DATOS
+ 000000FE  E8 00000000 E		call crlf									;Añade salto de línea
+ 00000103  E8 00000000 E		call crlf									;Añade salto de línea
+ 00000108  BA 00000079 R		mov	edx, offset	rayitas						;Mueve a el registro edx la dirección de memoria de rayitas
+ 0000010D  E8 00000000 E		call writestring							;Escribe en pantalla el comentario rayitas
+ 00000112  E8 00000000 E		call crlf									;Añade un salto línea
+ 00000117  BA 000002FB R		mov	edx, offset	sep							;Mueve a el registro edx la dirección de memoria de sep
+ 0000011C  BA 0000003C R		mov edx, offset encab						;Guarda en edx el comentario encab
+ 00000121  E8 00000000 E		call writestring							;Muestra en pantalla el anterior comentario
+ 00000126  E8 00000000 E		call crlf									;Añade salto de línea
+ 0000012B  BA 00000079 R		mov	edx, offset	rayitas						;Mueve a el registro edx la dirección de memoria de rayitas
+ 00000130  E8 00000000 E		call writestring							;Escribe en pantalla el comentario rayitas
+ 00000135  E8 00000000 E		call crlf									;Añade un salto línea
+ 0000013A  BA 000002FB R		mov	edx, offset	sep							;Mueve a el registro edx la dirección de memoria de sep
+ 0000013F  33 DB			xor ebx, ebx								;Convierte a ebx en 0
+ 00000141  8B 0D 000003F0 R		mov ecx, r									;Guarda en ecx el valor de r, contador del siguiente loop
+ 00000147				printing:									;Inicia el ciclo
+ 00000147  BA 000002FB R			mov edx, offset sep						;Guarda en edx el comentario sep
+ 0000014C  E8 00000000 E			call writestring						;Muestra en pantalla el anterior comentario
+ 00000151  DD 83 00000300 R			fld		arraysito[ebx]					;Carga el valor del arraysito en la posición ebx en la pila
+ 00000157  E8 00000000 E			call	WriteFloat						;Escribe en pantalla el valor anterior
+ 0000015C  E8 00000000 E			call	writestring						;Muestra en pantalla el comentario sep
+ 00000161  DD 83 00000350 R			fld	arraysitoY1[ebx]					;Carga el valor del arraysitoY1 en la posición ebx en la pila
+ 00000167  E8 00000000 E			call	WriteFloat						;Escribe en pantalla el valor anterior
+ 0000016C  E8 00000000 E			call	writestring						;Muestra en pantalla el comentario sep
+ 00000171  DD 83 000003A0 R			fld		arraysitoY2[ebx]				;Carga el valor del arraysitoY2 en la posición ebx en la pila
+ 00000177  E8 00000000 E			call	WriteFloat						;Escribe en pantalla el valor anterior
+ 0000017C  83 C3 08				add	ebx, 08h							;Suma a ebx 8 en hexadecimal para apuntar al indice de posición inicial de cada elemento del array
+ 0000017F  E8 00000000 E			call writestring						;Muestra en pantalla el comentario sep
+ 00000184  E8 00000000 E			call crlf								;Añade un salto de línea
+ 00000189  BA 00000079 R			mov	edx, offset	rayitas					;Mueve a el registro edx la dirección de memoria de rayitas
+ 0000018E  E8 00000000 E			call writestring						;Escribe en pantalla el comentario rayitas
+ 00000193  E8 00000000 E			call crlf								;Añade un salto línea
+ 00000198  BA 000002FB R			mov	edx, offset	sep						;Mueve a el registro edx la dirección de memoria de sep
+ 0000019D  9B DB E3				finit									;Vacía la pila
+ 000001A0  E2 A5			loop printing								;Decrementa ecx y termina el ciclo cuando llegue a 0
+ 000001A2  E8 00000000 E		call crlf									;Añade un salto de línea
+ 000001A7  BA 00000079 R		mov	edx, offset	rayitas						;Mueve a el registro edx la dirección de memoria de rayitas
+ 000001AC  E8 00000000 E		call writestring							;Escribe en pantalla el comentario rayitas
+ 000001B1  E8 00000000 E		call crlf									;Añade un salto línea
+ 000001B6  BA 000002FB R		mov	edx, offset	sep							;Mueve a el registro edx la dirección de memoria de sep
+ 000001BB  E8 00000000 E		call writestring							;Muestra en pantalla el comentario sep
+ 000001C0  BA 00000010 R		mov edx, offset printmed					;Guarda en edx el comentario printmed
+ 000001C5  E8 00000000 E		call writestring							;Muestra en pantalla el comentario printmed
+ 000001CA  BA 000002FB R		mov edx, offset sep							;Guarda en edx el comentario sep
+ 000001CF  E8 00000000 E		call writestring							;Muestra en pantalla el comentario sep
+
+					;CALCULO DE MEDIAS
+					;MEDIA DE Y1
+ 000001D4  33 DB			xor	ebx, ebx								;Convierte a ebx en 0
+ 000001D6  8B 0D 000003F0 R		mov ecx, r									;Guarda en ecx el valor de r, contador del siguiente loop
+ 000001DC				suma:										;Inicia el loop
+ 000001DC  DD 83 00000350 R			fld arraysitoY1[ebx]					;Carga el valor del arraysitoY1 en la posición ebx en la pila
+ 000001E2  D8 05 00000408 R			fadd cont1								;Suma al valor anterior cont1 que inicialmente es 0
+ 000001E8  D9 1D 00000408 R			fstp cont1								;Guarda el resultado anterior en cont1
+ 000001EE  83 C3 08				add ebx, 08h							;Suma 8 a ebx en hexadecimal para apuntar al indice de posición inicial de cada elemento del array
+ 000001F1  E2 E9			loop suma									;Decrementa ecx y termina el ciclo cuando llegue a 0
+ 000001F3  D9 05 00000408 R		fld cont1									;Carga a la pila cont1
+ 000001F9  DB 05 000003F0 R		fild r										;Carga a la pila r
+ 000001FF  DE F9			fdiv										;Divide cont1 entre r
+ 00000201  E8 00000000 E		call writefloat								;Imprime en pantalla el valor obtenido
+ 00000206  D9 1D 00000408 R		fstp cont1									;Guarda el resultado de la division en cont1
+					
+					;MEDIA DE Y2
+ 0000020C  33 DB			xor	ebx, ebx								;Convierte a ebx en 0
+ 0000020E  8B 0D 000003F0 R		mov ecx, r									;Guarda en ecx el valor de r, contador del siguiente loop
+ 00000214				suma2:										;Inicia el loop
+ 00000214  DD 83 000003A0 R			fld arraysitoY2[ebx]					;Carga el valor del arraysitoY2 en la posición ebx en la pila
+ 0000021A  D8 05 0000040C R			fadd cont2								;Suma al valor anterior cont2 que inicialmente es 0
+ 00000220  D9 1D 0000040C R			fstp cont2								;Guarda el resultado anterior en cont2
+ 00000226  83 C3 08				add ebx, 08h							;Suma 8 a ebx en hexadecimal para apuntar al indice de posición inicial de cada elemento del array
+ 00000229  E2 E9			loop suma2									;Decrementa ecx y termina el ciclo cuando llegue a 0
+ 0000022B  D9 05 0000040C R		fld cont2									;Carga a la pila cont2
+ 00000231  DB 05 000003F0 R		fild r										;Carga a la pila r
+ 00000237  DE F9			fdiv										;Divide cont1 entre r
+ 00000239  E8 00000000 E		call writestring							;Muestra en pantalla el comentario sep
+ 0000023E  E8 00000000 E		call writefloat								;Imprime en pantalla el valor obtenido
+ 00000243  E8 00000000 E		call writestring                            ;Muestra en pantalla el comentario sep
+ 00000248  E8 00000000 E		call crlf									;Añade un salto línea
+ 0000024D  BA 00000079 R		mov	edx, offset	rayitas						;Mueve a el registro edx la dirección de memoria de rayitas
+ 00000252  E8 00000000 E		call writestring							;Escribe en pantalla el comentario rayitas
+ 00000257  E8 00000000 E		call crlf									;Añade un salto línea
+ 0000025C  D9 1D 0000040C R		fstp cont2									;Guarda el resultado de la division en cont2
+ 00000262  E8 00000000 E		call  crlf									;Añade un salto de línea
+ 00000267  9B DB E3			finit										;Vacía la pila
+ 0000026A  E8 00000000 E		call waitmsg								;Espera hasta que el usuario pulse cualquier tecla para poder continuar
+ 0000026F  E8 00000000 E		call crlf									;Llama la función crlf para añadir un salto de línea en pantala
+ 00000274  E8 00000000 E		call crlf									;Llama la función crlf para añadir un salto de línea en pantala
+ 00000279  BA 00000079 R		mov	edx, offset	rayitas						;Mueve a el registro edx la dirección de memoria de rayitas
+ 0000027E  E8 00000000 E		call writestring							;Escribe en pantalla el comentario rayitas
+ 00000283  E8 00000000 E		call crlf									;Añade un salto línea
+ 00000288  BA 000002FB R		mov	edx, offset	sep							;Mueve a el registro edx la dirección de memoria de sep
+ 0000028D  E8 00000000 E		call writestring                            ;Muestra en pantalla el comentario sep
+
+					;DESVIACION ESTANDAR
+					;DESVIACION DE Y1
+ 00000292  33 DB			xor	ebx, ebx								;Convierte a ebx en 0
+ 00000294  8B 0D 000003F0 R		mov ecx, r									;Guarda en ecx el valor de r, contador del siguiente loop
+ 0000029A				desviacionY1:								;Inicia el loop
+ 0000029A  DD 83 00000350 R			fld arraysitoY1[ebx]					;Carga el valor del arraysitoY1 en la posición ebx en la pila
+ 000002A0  D9 05 00000408 R			fld cont1								;Carga a la pila cont1
+ 000002A6  DE E9				fsub									;Resta ambos valores
+ 000002A8  D9 1D 00000414 R			fstp base1								;Guarda el resultado de la resta en base1
+ 000002AE  D9 05 00000414 R			fld base1								;Carga a la pila base1
+ 000002B4  D8 0D 00000414 R			fmul base1								;Multiplica base1 por sí misma
+ 000002BA  D9 1D 0000041C R			fstp potencia1							;Guarda el resultado de la multiplicación en potencia1
+ 000002C0  D9 05 00000424 R			fld desv1								;Carga a la pila desv1
+ 000002C6  D8 05 0000041C R			fadd potencia1							;Suma potencia1 a desv1
+ 000002CC  D9 1D 00000424 R			fstp desv1								;Guarda el resultado de la suma en desv1
+ 000002D2  33 C0				xor eax, eax							;Convierte a eax en 0
+ 000002D4  A3 0000041C R			mov potencia1, eax						;Guarda en potencia1 el valor de eax
+ 000002D9  83 C3 08				add ebx, 08h							;Suma 8 a ebx en hexadecimal para apuntar al índice de posición inicial de cada elemento del array
+ 000002DC  9B DB E3				finit									;Vacía la pila
+ 000002DF  E2 B9			loop desviacionY1							;Decrementa ecx y termina el ciclo cuando llegue a 0
+ 000002E1  D9 05 00000424 R			fld desv1								;Carga a la pila desv1
+ 000002E7  DB 05 000003F0 R			fild r									;Carga a la pila r
+ 000002ED  DE F9				fdiv									;Divide desv1 entre r
+ 000002EF  D9 1D 00000424 R			fstp desv1								;Guarda el resultado de la división en desv1
+ 000002F5  D9 05 00000424 R			fld desv1								;Carga a la pila desv1
+ 000002FB  D9 FA				fsqrt									;Calcula la raíz cuadrada de desv1 
+ 000002FD  BA 00000000 R			mov edx, offset printdesv				;Guarda en edx el comentario printdesv
+ 00000302  E8 00000000 E			call writestring						;Muestra en pantalla el comentario printdesv
+ 00000307  BA 000002FB R			mov edx, offset sep						;Guarda en edx el comentario sep
+ 0000030C  E8 00000000 E			call writestring						;Muestra en pantalla el comentario sep
+ 00000311  E8 00000000 E			call writefloat							;Muestra en pantalla el valor de desv1
+ 00000316  E8 00000000 E			call writestring						;Muestra en pantalla el comentario sep
+ 0000031B  D9 1D 0000042C R			fstp resultado1							;Guarda el resultado de la raíz cuadrada en resultado1
+
+					;DESVIACION DE Y2
+ 00000321  33 DB			xor	ebx, ebx								;Convierte a ebx en 0
+ 00000323  8B 0D 000003F0 R		mov ecx, r									;Guarda en ecx el valor de r, contador del siguiente loop
+ 00000329				desviacionY2:								;Inicia el loop
+ 00000329  DD 83 000003A0 R			fld arraysitoY2[ebx]					;Carga el valor del arraysitoY2 en la posición ebx en la pila
+ 0000032F  D9 05 0000040C R			fld cont2								;Carga a la pila cont2
+ 00000335  DE E9				fsub									;Resta ambos valores
+ 00000337  D9 1D 00000418 R			fstp base2								;Guarda el resultado de la resta en base2
+ 0000033D  D9 05 00000418 R			fld base2								;Carga a la pila base2
+ 00000343  D8 0D 00000418 R			fmul base2								;Multiplica base2 por sí misma
+ 00000349  D9 1D 00000420 R			fstp potencia2							;Guarda el resultado de la multiplicación en potencia2
+ 0000034F  D9 05 00000428 R			fld desv2								;Carga a la pila desv2
+ 00000355  D8 05 00000420 R			fadd potencia2							;Suma potencia2 a desv2
+ 0000035B  D9 1D 00000428 R			fstp desv2								;Guarda el resultado de la suma en desv2
+ 00000361  33 C0				xor eax, eax							;Convierte a eax en 0
+ 00000363  A3 00000420 R			mov potencia2, eax						;Guarda en potencia2 el valor de eax
+ 00000368  83 C3 08				add ebx, 08h							;Suma 8 a ebx en hexadecimal para apuntar al índice de posición inicial de cada elemento del array
+ 0000036B  9B DB E3				finit									;Vacía la pila
+ 0000036E  E2 B9			loop desviacionY2							;Decrementa ecx y termina el ciclo cuando llegue a 0
+ 00000370  D9 05 00000428 R			fld desv2								;Carga a la pila desv2
+ 00000376  DB 05 000003F0 R			fild r									;Carga a la pila r
+ 0000037C  DE F9				fdiv									;Divide desv2 entre r
+ 0000037E  D9 1D 00000428 R			fstp desv2								;Guarda el resultado de la división en desv2
+ 00000384  D9 05 00000428 R			fld desv2								;Carga a la pila desv2
+ 0000038A  D9 FA				fsqrt									;Calcula la raíz cuadrada de desv2
+ 0000038C  E8 00000000 E			call writefloat							;Muestra en pantalla el valor de desv2
+ 00000391  E8 00000000 E			call writestring						;Muestra en pantalla el comentario sep
+ 00000396  E8 00000000 E			call crlf								;Añade un salto línea
+ 0000039B  BA 00000079 R			mov	edx, offset	rayitas					;Mueve a el registro edx la dirección de memoria de rayitas
+ 000003A0  E8 00000000 E			call writestring						;Escribe en pantalla el comentario rayitas
+ 000003A5  E8 00000000 E			call crlf								;Añade un salto línea
+ 000003AA  BA 000002FB R			mov	edx, offset	sep						;Mueve a el registro edx la dirección de memoria de sep
+ 000003AF  D9 1D 00000430 R			fstp resultado2							;Guarda el resultado de la raíz cuadrada en resultado2																					
+ 000003B5  9B DB E3			finit										;Vacía la pila
+ 000003B8  E8 00000000 E		call crlf									;Añade un salto línea
+ 000003BD  E8 00000000 E		call waitmsg								;Espera hasta que el usuario pulse cualquier tecla para poder continuar
+ 000003C2  E8 00000000 E		call crlf									;Añade un salto línea
+ 000003C7  E8 00000000 E		call crlf									;Añade un salto línea
+ 000003CC  BA 00000079 R		mov	edx, offset	rayitas						;Mueve a el registro edx la dirección de memoria de rayitas
+ 000003D1  E8 00000000 E		call writestring							;Escribe en pantalla el comentario rayitas
+ 000003D6  E8 00000000 E		call crlf									;Añade un salto línea
+ 000003DB  BA 000002FB R		mov	edx, offset	sep							;Mueve a el registro edx la dirección de memoria de sep
+ 000003E0  E8 00000000 E		call writestring							;Muestra en pantalla el comentario sep
+ 000003E5  BA 00000020 R		mov edx, offset printper					;Guarda en edx el comentario printper
+ 000003EA  E8 00000000 E		call writestring							;Muestra en pantalla el comentario printper
+ 000003EF  BA 000002FB R		mov edx, offset sep							;Guarda en edx el comentario sep
+ 000003F4  E8 00000000 E		call writestring							;Muestra en pantalla el comentario sep
+						
+					;SUMATORIA DE X*Y
+ 000003F9  33 DB			xor	ebx, ebx								;Convierte a ebx en 0
+ 000003FB  8B 0D 000003F0 R		mov ecx, r									;Guarda en ecx el valor de r, contador del siguiente loop
+ 00000401				sump:										;Inicia el loop
+ 00000401  DD 83 00000350 R			fld arraysitoY1[ebx]					;Carga el valor del arraysitoY1 en la posición ebx en la pila
+ 00000407  DD 83 000003A0 R			fld arraysitoY2[ebx]					;Carga el valor del arraysitoY2 en la posición ebx en la pila
+ 0000040D  DE C9				fmul									;Multiplica los dos valores anteriores
+ 0000040F  D9 1D 0000043C R			fstp sumpp								;Guarda el resultado de la multiplicación en sumpp
+ 00000415  D9 05 00000438 R			fld pear								;Carga a la pila pear
+ 0000041B  D8 05 0000043C R			fadd sumpp								;Suma sumpp a pear
+ 00000421  D9 1D 00000438 R			fstp pear								;Guarda el resultado de la suma en pear
+ 00000427  83 C3 08				add ebx, 08h							;Suma 8 a ebx en hexadecimal para apuntar al índice de posición inicial de cada elemento del array
+ 0000042A  9B DB E3				finit									;Vacía la pila
+ 0000042D  E2 D2			loop sump									;Decrementa ecx y termina el ciclo cuando llegue a 0
+
+					;MULTIPLICACION MEDIAS
+ 0000042F  D9 05 00000408 R		fld cont1									;Carga a la pila cont1
+ 00000435  D8 0D 0000040C R		fmul cont2									;Multplica cont1 por cont2
+ 0000043B  D9 1D 000003F8 R		fstp multi2									;Guarda el resultado de la multiplicación en multi2
+
+					;MULTIPLICACION DESVIACIONES                  
+ 00000441  D9 05 0000042C R		fld resultado1                              ;Apila el valor de resultado1
+ 00000447  D8 0D 00000430 R		fmul resultado2                             ;Multiplica el valor de resultado1 por resultado2
+ 0000044D  D9 1D 000003F4 R		fstp multi									;Desapila el valor de la operación anterior y lo almacena en multi
+
+					;PEARSON						
+ 00000453  D9 05 00000438 R		fld pear									;Apila el valor de pear
+ 00000459  DB 05 000003F0 R		fild r										;Carga el valor del entero r
+ 0000045F  DE F9			fdiv										;Divide pear por el valor de r
+ 00000461  D9 1D 00000440 R		fstp divi									;Desapila el valor de la operación anterior y lo almacena en divi
+ 00000467  D9 05 00000440 R		fld divi									;Apila el valor de divi
+ 0000046D  D8 25 000003F8 R		fsub multi2									;Resta multi2 al valor de la cabeza de la pila 
+ 00000473  D9 1D 00000444 R		fstp rest									;Desapila el valor de la operación anterior y lo almacena en rest
+ 00000479  D9 05 00000444 R		fld rest									;Apila el valor de rest
+ 0000047F  D9 05 000003F4 R		fld multi									;Apila el valor de multi
+ 00000485  DE F9			fdiv										;Divide a rest por el valor de multi
+ 00000487  BA 00000030 R		mov edx, offset tetr						;Guarda en edx el comentario tetr
+ 0000048C  E8 00000000 E		call writestring							;Muestra en pantalla el comentario tetr
+ 00000491  E8 00000000 E		call writefloat								;Muestra en pantalla el valor de la división
+ 00000496  D9 1D 00000434 R		fstp resultado3								;Desapila el valor de la operación anterior y lo almacena en resultado3
+ 0000049C  E8 00000000 E		call writestring							;Muestra en pantalla el comentario tetr
+ 000004A1  BA 0000003A R		mov edx, offset espac						;Guarda en el registro edx el comentario espac
+ 000004A6  E8 00000000 E		call writestring							;Muestra en pantalla el valor de espac
+ 000004AB  BA 000002FB R		mov edx, offset sep							;Guarda en el registro edx el comentario sep
+ 000004B0  E8 00000000 E		call writestring							;Muestra en pantalla el valor de sep
+ 000004B5  E8 00000000 E		call crlf									;Llama la función crlf para añadir un salto de línea en pantalla
+ 000004BA  BA 00000079 R		mov	edx, offset	rayitas						;Mueve a el registro edx la dirección de memoria de rayitas
+ 000004BF  E8 00000000 E		call writestring							;Escribe en pantalla el comentario rayitas
+ 000004C4  E8 00000000 E		call crlf									;Añade un salto línea
+ 000004C9  E8 00000000 E		call crlf									;Añade un salto línea
+ 000004CE  E8 00000000 E		call waitmsg								;Espera hasta que el usuario pulse cualquier tecla para poder continuar			
+ 000004D3  E8 00000000 E		call crlf									;Añade un salto línea
+ 000004D8  BA 000002D8 R		mov	edx, offset	final						;Guarda en el registro edx el comentario final
+ 000004DD  B8 00000004			mov eax,red									;Mueve al registro eax el valor del color red
+ 000004E2  E8 00000000 E		call SetTextColor							;Cambia en consola el color cargado anterior en eax
+ 000004E7  E8 00000000 E		call writestring							;Muestra en pantalla el comentario  final
+ 000004EC  B8 0000000F			mov eax,white								;Mueve al registro eax el valor del color white
+ 000004F1  E8 00000000 E		call SetTextColor							;Cambia en consola el color cargado anterior en eax
+ 000004F6  9B				fwait										;Sincroniza el procesador y el coprocesador
+
+					invoke ExitProcess,0
+ 000004F7  6A 00	   *	    push   +000000000h
+ 000004F9  E8 00000000 E   *	    call   ExitProcess
+ 000004FE			main endp
+				end main
+				;m
+Microsoft (R) Macro Assembler Version 14.32.31332.0	    07/03/22 20:06:13
+PRACTICA.asm						     Symbols 2 - 1
+
+
+
+
+Structures and Unions:
+
+                N a m e                  Size
+                                         Offset      Type
+
+CONSOLE_CURSOR_INFO  . . . . . .	 00000008
+  dwSize . . . . . . . . . . . .	 00000000	 DWord
+  bVisible . . . . . . . . . . .	 00000004	 DWord
+CONSOLE_SCREEN_BUFFER_INFO . . .	 00000016
+  dwSize . . . . . . . . . . . .	 00000000	 DWord
+  dwCursorPosition . . . . . . .	 00000004	 DWord
+  wAttributes  . . . . . . . . .	 00000008	 Word
+  srWindow . . . . . . . . . . .	 0000000A	 QWord
+  dwMaximumWindowSize  . . . . .	 00000012	 DWord
+COORD  . . . . . . . . . . . . .	 00000004
+  X  . . . . . . . . . . . . . .	 00000000	 Word
+  Y  . . . . . . . . . . . . . .	 00000002	 Word
+FILETIME . . . . . . . . . . . .	 00000008
+  loDateTime . . . . . . . . . .	 00000000	 DWord
+  hiDateTime . . . . . . . . . .	 00000004	 DWord
+FOCUS_EVENT_RECORD . . . . . . .	 00000004
+  bSetFocus  . . . . . . . . . .	 00000000	 DWord
+FPU_ENVIRON  . . . . . . . . . .	 0000001C
+  controlWord  . . . . . . . . .	 00000000	 Word
+  statusWord . . . . . . . . . .	 00000004	 Word
+  tagWord  . . . . . . . . . . .	 00000008	 Word
+  instrPointerOffset . . . . . .	 0000000C	 DWord
+  instrPointerSelector . . . . .	 00000010	 DWord
+  operandPointerOffset . . . . .	 00000014	 DWord
+  operandPointerSelector . . . .	 00000018	 Word
+INPUT_RECORD . . . . . . . . . .	 00000014
+  EventType  . . . . . . . . . .	 00000000	 Word
+  Event  . . . . . . . . . . . .	 00000004	 XmmWord
+  bKeyDown . . . . . . . . . . .	 00000000	 DWord
+  wRepeatCount . . . . . . . . .	 00000004	 Word
+  wVirtualKeyCode  . . . . . . .	 00000006	 Word
+  wVirtualScanCode . . . . . . .	 00000008	 Word
+  uChar  . . . . . . . . . . . .	 0000000A	 Word
+  UnicodeChar  . . . . . . . . .	 00000000	 Word
+  AsciiChar  . . . . . . . . . .	 00000000	 Byte
+  dwControlKeyState  . . . . . .	 0000000C	 DWord
+  dwMousePosition  . . . . . . .	 00000000	 DWord
+  dwButtonState  . . . . . . . .	 00000004	 DWord
+  dwMouseControlKeyState . . . .	 00000008	 DWord
+  dwEventFlags . . . . . . . . .	 0000000C	 DWord
+  dwSize . . . . . . . . . . . .	 00000000	 DWord
+  dwCommandId  . . . . . . . . .	 00000000	 DWord
+  bSetFocus  . . . . . . . . . .	 00000000	 DWord
+KEY_EVENT_RECORD . . . . . . . .	 00000010
+  bKeyDown . . . . . . . . . . .	 00000000	 DWord
+  wRepeatCount . . . . . . . . .	 00000004	 Word
+  wVirtualKeyCode  . . . . . . .	 00000006	 Word
+  wVirtualScanCode . . . . . . .	 00000008	 Word
+  uChar  . . . . . . . . . . . .	 0000000A	 Word
+  UnicodeChar  . . . . . . . . .	 00000000	 Word
+  AsciiChar  . . . . . . . . . .	 00000000	 Byte
+  dwControlKeyState  . . . . . .	 0000000C	 DWord
+MENU_EVENT_RECORD  . . . . . . .	 00000004
+  dwCommandId  . . . . . . . . .	 00000000	 DWord
+MOUSE_EVENT_RECORD . . . . . . .	 00000010
+  dwMousePosition  . . . . . . .	 00000000	 DWord
+  dwButtonState  . . . . . . . .	 00000004	 DWord
+  dwMouseControlKeyState . . . .	 00000008	 DWord
+  dwEventFlags . . . . . . . . .	 0000000C	 DWord
+SMALL_RECT . . . . . . . . . . .	 00000008
+  Left . . . . . . . . . . . . .	 00000000	 Word
+  Top  . . . . . . . . . . . . .	 00000002	 Word
+  Right  . . . . . . . . . . . .	 00000004	 Word
+  Bottom . . . . . . . . . . . .	 00000006	 Word
+SYSTEMTIME . . . . . . . . . . .	 00000010
+  wYear  . . . . . . . . . . . .	 00000000	 Word
+  wMonth . . . . . . . . . . . .	 00000002	 Word
+  wDayOfWeek . . . . . . . . . .	 00000004	 Word
+  wDay . . . . . . . . . . . . .	 00000006	 Word
+  wHour  . . . . . . . . . . . .	 00000008	 Word
+  wMinute  . . . . . . . . . . .	 0000000A	 Word
+  wSecond  . . . . . . . . . . .	 0000000C	 Word
+  wMilliseconds  . . . . . . . .	 0000000E	 Word
+WINDOW_BUFFER_SIZE_RECORD  . . .	 00000004
+  dwSize . . . . . . . . . . . .	 00000000	 DWord
+
+
+Segments and Groups:
+
+                N a m e                 Size     Length   Align   Combine Class
+
+FLAT . . . . . . . . . . . . . .	GROUP
+STACK  . . . . . . . . . . . . .	32 Bit	 00001000 Para	  Stack	  'STACK'	 
+_DATA  . . . . . . . . . . . . .	32 Bit	 00000448 Para	  Public  'DATA'	
+_TEXT  . . . . . . . . . . . . .	32 Bit	 000004FE Para	  Public  'CODE'	
+
+
+Procedures, parameters, and locals:
+
+                N a m e                 Type     Value    Attr
+
+CloseFile  . . . . . . . . . . .	P Near	 00000000 FLAT	Length= 00000000 External STDCALL
+CloseHandle  . . . . . . . . . .	P Near	 00000000 FLAT	Length= 00000000 External STDCALL
+Clrscr . . . . . . . . . . . . .	P Near	 00000000 FLAT	Length= 00000000 External STDCALL
+CreateFileA  . . . . . . . . . .	P Near	 00000000 FLAT	Length= 00000000 External STDCALL
+CreateOutputFile . . . . . . . .	P Near	 00000000 FLAT	Length= 00000000 External STDCALL
+Crlf . . . . . . . . . . . . . .	P Near	 00000000 FLAT	Length= 00000000 External STDCALL
+Delay  . . . . . . . . . . . . .	P Near	 00000000 FLAT	Length= 00000000 External STDCALL
+DumpMem  . . . . . . . . . . . .	P Near	 00000000 FLAT	Length= 00000000 External STDCALL
+DumpRegs . . . . . . . . . . . .	P Near	 00000000 FLAT	Length= 00000000 External STDCALL
+ExitProcess  . . . . . . . . . .	P Near	 00000000 FLAT	Length= 00000000 External STDCALL
+FileTimeToDosDateTime  . . . . .	P Near	 00000000 FLAT	Length= 00000000 External STDCALL
+FileTimeToSystemTime . . . . . .	P Near	 00000000 FLAT	Length= 00000000 External STDCALL
+FlushConsoleInputBuffer  . . . .	P Near	 00000000 FLAT	Length= 00000000 External STDCALL
+FormatMessageA . . . . . . . . .	P Near	 00000000 FLAT	Length= 00000000 External STDCALL
+GetCommandLineA  . . . . . . . .	P Near	 00000000 FLAT	Length= 00000000 External STDCALL
+GetCommandTail . . . . . . . . .	P Near	 00000000 FLAT	Length= 00000000 External STDCALL
+GetConsoleCP . . . . . . . . . .	P Near	 00000000 FLAT	Length= 00000000 External STDCALL
+GetConsoleCursorInfo . . . . . .	P Near	 00000000 FLAT	Length= 00000000 External STDCALL
+GetConsoleMode . . . . . . . . .	P Near	 00000000 FLAT	Length= 00000000 External STDCALL
+GetConsoleScreenBufferInfo . . .	P Near	 00000000 FLAT	Length= 00000000 External STDCALL
+GetDateTime  . . . . . . . . . .	P Near	 00000000 FLAT	Length= 00000000 External STDCALL
+GetFileTime  . . . . . . . . . .	P Near	 00000000 FLAT	Length= 00000000 External STDCALL
+GetKeyState  . . . . . . . . . .	P Near	 00000000 FLAT	Length= 00000000 External STDCALL
+GetLastError . . . . . . . . . .	P Near	 00000000 FLAT	Length= 00000000 External STDCALL
+GetLocalTime . . . . . . . . . .	P Near	 00000000 FLAT	Length= 00000000 External STDCALL
+GetMaxXY . . . . . . . . . . . .	P Near	 00000000 FLAT	Length= 00000000 External STDCALL
+GetMseconds  . . . . . . . . . .	P Near	 00000000 FLAT	Length= 00000000 External STDCALL
+GetNumberOfConsoleInputEvents  .	P Near	 00000000 FLAT	Length= 00000000 External STDCALL
+GetProcessHeap . . . . . . . . .	P Near	 00000000 FLAT	Length= 00000000 External STDCALL
+GetStdHandle . . . . . . . . . .	P Near	 00000000 FLAT	Length= 00000000 External STDCALL
+GetSystemTime  . . . . . . . . .	P Near	 00000000 FLAT	Length= 00000000 External STDCALL
+GetTextColor . . . . . . . . . .	P Near	 00000000 FLAT	Length= 00000000 External STDCALL
+GetTickCount . . . . . . . . . .	P Near	 00000000 FLAT	Length= 00000000 External STDCALL
+Gotoxy . . . . . . . . . . . . .	P Near	 00000000 FLAT	Length= 00000000 External STDCALL
+HeapAlloc  . . . . . . . . . . .	P Near	 00000000 FLAT	Length= 00000000 External STDCALL
+HeapCreate . . . . . . . . . . .	P Near	 00000000 FLAT	Length= 00000000 External STDCALL
+HeapDestroy  . . . . . . . . . .	P Near	 00000000 FLAT	Length= 00000000 External STDCALL
+HeapFree . . . . . . . . . . . .	P Near	 00000000 FLAT	Length= 00000000 External STDCALL
+HeapSize . . . . . . . . . . . .	P Near	 00000000 FLAT	Length= 00000000 External STDCALL
+IsDigit  . . . . . . . . . . . .	P Near	 00000000 FLAT	Length= 00000000 External STDCALL
+LocalFree  . . . . . . . . . . .	P Near	 00000000 FLAT	Length= 00000000 External STDCALL
+MessageBoxA  . . . . . . . . . .	P Near	 00000000 FLAT	Length= 00000000 External STDCALL
+MsgBoxAsk  . . . . . . . . . . .	P Near	 00000000 FLAT	Length= 00000000 External STDCALL
+MsgBox . . . . . . . . . . . . .	P Near	 00000000 FLAT	Length= 00000000 External STDCALL
+OpenInputFile  . . . . . . . . .	P Near	 00000000 FLAT	Length= 00000000 External STDCALL
+ParseDecimal32 . . . . . . . . .	P Near	 00000000 FLAT	Length= 00000000 External STDCALL
+ParseInteger32 . . . . . . . . .	P Near	 00000000 FLAT	Length= 00000000 External STDCALL
+PeekConsoleInputA  . . . . . . .	P Near	 00000000 FLAT	Length= 00000000 External STDCALL
+Random32 . . . . . . . . . . . .	P Near	 00000000 FLAT	Length= 00000000 External STDCALL
+RandomRange  . . . . . . . . . .	P Near	 00000000 FLAT	Length= 00000000 External STDCALL
+Randomize  . . . . . . . . . . .	P Near	 00000000 FLAT	Length= 00000000 External STDCALL
+ReadChar . . . . . . . . . . . .	P Near	 00000000 FLAT	Length= 00000000 External STDCALL
+ReadConsoleA . . . . . . . . . .	P Near	 00000000 FLAT	Length= 00000000 External STDCALL
+ReadConsoleInputA  . . . . . . .	P Near	 00000000 FLAT	Length= 00000000 External STDCALL
+ReadDec  . . . . . . . . . . . .	P Near	 00000000 FLAT	Length= 00000000 External STDCALL
+ReadFile . . . . . . . . . . . .	P Near	 00000000 FLAT	Length= 00000000 External STDCALL
+ReadFloat  . . . . . . . . . . .	P Near	 00000000 FLAT	Length= 00000000 External STDCALL
+ReadFromFile . . . . . . . . . .	P Near	 00000000 FLAT	Length= 00000000 External STDCALL
+ReadHex  . . . . . . . . . . . .	P Near	 00000000 FLAT	Length= 00000000 External STDCALL
+ReadInt  . . . . . . . . . . . .	P Near	 00000000 FLAT	Length= 00000000 External STDCALL
+ReadKeyFlush . . . . . . . . . .	P Near	 00000000 FLAT	Length= 00000000 External STDCALL
+ReadKey  . . . . . . . . . . . .	P Near	 00000000 FLAT	Length= 00000000 External STDCALL
+ReadString . . . . . . . . . . .	P Near	 00000000 FLAT	Length= 00000000 External STDCALL
+SetConsoleCursorInfo . . . . . .	P Near	 00000000 FLAT	Length= 00000000 External STDCALL
+SetConsoleCursorPosition . . . .	P Near	 00000000 FLAT	Length= 00000000 External STDCALL
+SetConsoleMode . . . . . . . . .	P Near	 00000000 FLAT	Length= 00000000 External STDCALL
+SetConsoleScreenBufferSize . . .	P Near	 00000000 FLAT	Length= 00000000 External STDCALL
+SetConsoleTextAttribute  . . . .	P Near	 00000000 FLAT	Length= 00000000 External STDCALL
+SetConsoleTitleA . . . . . . . .	P Near	 00000000 FLAT	Length= 00000000 External STDCALL
+SetConsoleWindowInfo . . . . . .	P Near	 00000000 FLAT	Length= 00000000 External STDCALL
+SetFilePointer . . . . . . . . .	P Near	 00000000 FLAT	Length= 00000000 External STDCALL
+SetLocalTime . . . . . . . . . .	P Near	 00000000 FLAT	Length= 00000000 External STDCALL
+SetTextColor . . . . . . . . . .	P Near	 00000000 FLAT	Length= 00000000 External STDCALL
+ShowFPUStack . . . . . . . . . .	P Near	 00000000 FLAT	Length= 00000000 External STDCALL
+Sleep  . . . . . . . . . . . . .	P Near	 00000000 FLAT	Length= 00000000 External STDCALL
+StrLength  . . . . . . . . . . .	P Near	 00000000 FLAT	Length= 00000000 External STDCALL
+Str_compare  . . . . . . . . . .	P Near	 00000000 FLAT	Length= 00000000 External STDCALL
+Str_copy . . . . . . . . . . . .	P Near	 00000000 FLAT	Length= 00000000 External STDCALL
+Str_length . . . . . . . . . . .	P Near	 00000000 FLAT	Length= 00000000 External STDCALL
+Str_trim . . . . . . . . . . . .	P Near	 00000000 FLAT	Length= 00000000 External STDCALL
+Str_ucase  . . . . . . . . . . .	P Near	 00000000 FLAT	Length= 00000000 External STDCALL
+SystemTimeToFileTime . . . . . .	P Near	 00000000 FLAT	Length= 00000000 External STDCALL
+WaitMsg  . . . . . . . . . . . .	P Near	 00000000 FLAT	Length= 00000000 External STDCALL
+WriteBinB  . . . . . . . . . . .	P Near	 00000000 FLAT	Length= 00000000 External STDCALL
+WriteBin . . . . . . . . . . . .	P Near	 00000000 FLAT	Length= 00000000 External STDCALL
+WriteChar  . . . . . . . . . . .	P Near	 00000000 FLAT	Length= 00000000 External STDCALL
+WriteConsoleA  . . . . . . . . .	P Near	 00000000 FLAT	Length= 00000000 External STDCALL
+WriteConsoleOutputAttribute  . .	P Near	 00000000 FLAT	Length= 00000000 External STDCALL
+WriteConsoleOutputCharacterA . .	P Near	 00000000 FLAT	Length= 00000000 External STDCALL
+WriteDec . . . . . . . . . . . .	P Near	 00000000 FLAT	Length= 00000000 External STDCALL
+WriteFile  . . . . . . . . . . .	P Near	 00000000 FLAT	Length= 00000000 External STDCALL
+WriteFloat . . . . . . . . . . .	P Near	 00000000 FLAT	Length= 00000000 External STDCALL
+WriteHexB  . . . . . . . . . . .	P Near	 00000000 FLAT	Length= 00000000 External STDCALL
+WriteHex . . . . . . . . . . . .	P Near	 00000000 FLAT	Length= 00000000 External STDCALL
+WriteInt . . . . . . . . . . . .	P Near	 00000000 FLAT	Length= 00000000 External STDCALL
+WriteStackFrameName  . . . . . .	P Near	 00000000 FLAT	Length= 00000000 External STDCALL
+WriteStackFrame  . . . . . . . .	P Near	 00000000 FLAT	Length= 00000000 External STDCALL
+WriteString  . . . . . . . . . .	P Near	 00000000 FLAT	Length= 00000000 External STDCALL
+WriteToFile  . . . . . . . . . .	P Near	 00000000 FLAT	Length= 00000000 External STDCALL
+WriteWindowsMsg  . . . . . . . .	P Near	 00000000 FLAT	Length= 00000000 External STDCALL
+main . . . . . . . . . . . . . .	P Near	 00000000 _TEXT	Length= 000004FE Public STDCALL
+  datitosx . . . . . . . . . . .	L Near	 0000009E _TEXT	
+  datos  . . . . . . . . . . . .	L Near	 000000CC _TEXT	
+  printing . . . . . . . . . . .	L Near	 00000147 _TEXT	
+  suma . . . . . . . . . . . . .	L Near	 000001DC _TEXT	
+  suma2  . . . . . . . . . . . .	L Near	 00000214 _TEXT	
+  desviacionY1 . . . . . . . . .	L Near	 0000029A _TEXT	
+  desviacionY2 . . . . . . . . .	L Near	 00000329 _TEXT	
+  sump . . . . . . . . . . . . .	L Near	 00000401 _TEXT	
+printf . . . . . . . . . . . . .	P Near	 00000000 FLAT	Length= 00000000 External C
+scanf  . . . . . . . . . . . . .	P Near	 00000000 FLAT	Length= 00000000 External C
+wsprintfA  . . . . . . . . . . .	P Near	 00000000 FLAT	Length= 00000000 External C
+
+
+Symbols:
+
+                N a m e                 Type     Value    Attr
+
+@CodeSize  . . . . . . . . . . .	Number	 00000000h   
+@DataSize  . . . . . . . . . . .	Number	 00000000h   
+@Interface . . . . . . . . . . .	Number	 00000003h   
+@Model . . . . . . . . . . . . .	Number	 00000007h   
+@code  . . . . . . . . . . . . .	Text   	 _TEXT
+@data  . . . . . . . . . . . . .	Text   	 FLAT
+@fardata?  . . . . . . . . . . .	Text   	 FLAT
+@fardata . . . . . . . . . . . .	Text   	 FLAT
+@stack . . . . . . . . . . . . .	Text   	 FLAT
+ALT_MASK . . . . . . . . . . . .	Number	 00000003h   
+Bienvenida0  . . . . . . . . . .	Byte	 000000B6 _DATA	
+Bienvenida1  . . . . . . . . . .	Byte	 000000DD _DATA	
+Bienvenida2  . . . . . . . . . .	Byte	 00000109 _DATA	
+Bienvenida3  . . . . . . . . . .	Byte	 00000116 _DATA	
+Bienvenida4  . . . . . . . . . .	Byte	 0000012A _DATA	
+Bienvenida5  . . . . . . . . . .	Byte	 00000157 _DATA	
+Bienvenida6  . . . . . . . . . .	Byte	 00000187 _DATA	
+Bienvenida7  . . . . . . . . . .	Byte	 000001B7 _DATA	
+CAPSLOCK_ON  . . . . . . . . . .	Number	 00000080h   
+CREATE_ALWAYS  . . . . . . . . .	Number	 00000002h   
+CREATE_NEW . . . . . . . . . . .	Number	 00000001h   
+CTRL_MASK  . . . . . . . . . . .	Number	 0000000Ch   
+CreateFile . . . . . . . . . . .	Text   	 CreateFileA
+DO_NOT_SHARE . . . . . . . . . .	Number	 00000000h   
+ENABLE_ECHO_INPUT  . . . . . . .	Number	 00000004h   
+ENABLE_LINE_INPUT  . . . . . . .	Number	 00000002h   
+ENABLE_MOUSE_INPUT . . . . . . .	Number	 00000010h   
+ENABLE_PROCESSED_INPUT . . . . .	Number	 00000001h   
+ENABLE_PROCESSED_OUTPUT  . . . .	Number	 00000001h   
+ENABLE_WINDOW_INPUT  . . . . . .	Number	 00000008h   
+ENABLE_WRAP_AT_EOL_OUTPUT  . . .	Number	 00000002h   
+ENHANCED_KEY . . . . . . . . . .	Number	 00000100h   
+Explicacion  . . . . . . . . . .	Byte	 000001E7 _DATA	
+FALSE  . . . . . . . . . . . . .	Number	 00000000h   
+FILE_APPEND_DATA . . . . . . . .	Number	 00000004h   
+FILE_ATTRIBUTE_ARCHIVE . . . . .	Number	 00000020h   
+FILE_ATTRIBUTE_COMPRESSED  . . .	Number	 00000800h   
+FILE_ATTRIBUTE_DEVICE  . . . . .	Number	 00000040h   
+FILE_ATTRIBUTE_DIRECTORY . . . .	Number	 00000010h   
+FILE_ATTRIBUTE_ENCRYPTED . . . .	Number	 00004000h   
+FILE_ATTRIBUTE_HIDDEN  . . . . .	Number	 00000002h   
+FILE_ATTRIBUTE_NORMAL  . . . . .	Number	 00000080h   
+FILE_ATTRIBUTE_NOT_CONTENT_INDEXED .	Number	 00002000h   
+FILE_ATTRIBUTE_OFFLINE . . . . .	Number	 00001000h   
+FILE_ATTRIBUTE_READONLY  . . . .	Number	 00000001h   
+FILE_ATTRIBUTE_REPARSE_POINT . .	Number	 00000400h   
+FILE_ATTRIBUTE_SPARSE_FILE . . .	Number	 00000200h   
+FILE_ATTRIBUTE_SYSTEM  . . . . .	Number	 00000004h   
+FILE_ATTRIBUTE_TEMPORARY . . . .	Number	 00000100h   
+FILE_BEGIN . . . . . . . . . . .	Number	 00000000h   
+FILE_CURRENT . . . . . . . . . .	Number	 00000001h   
+FILE_DELETE_CHILD  . . . . . . .	Number	 00000040h   
+FILE_END . . . . . . . . . . . .	Number	 00000002h   
+FILE_READ_DATA . . . . . . . . .	Number	 00000001h   
+FILE_SHARE_DELETE  . . . . . . .	Number	 00000004h   
+FILE_SHARE_READ  . . . . . . . .	Number	 00000001h   
+FILE_SHARE_WRITE . . . . . . . .	Number	 00000002h   
+FILE_WRITE_DATA  . . . . . . . .	Number	 00000002h   
+FOCUS_EVENT  . . . . . . . . . .	Number	 00000010h   
+FORMAT_MESSAGE_ALLOCATE_BUFFER .	Number	 00000100h   
+FORMAT_MESSAGE_FROM_SYSTEM . . .	Number	 00001000h   
+FormatMessage  . . . . . . . . .	Text   	 FormatMessageA
+GENERIC_ALL  . . . . . . . . . .	Number	 10000000h   
+GENERIC_EXECUTE  . . . . . . . .	Number	 20000000h   
+GENERIC_READ . . . . . . . . . .	Number	 -80000000h   
+GENERIC_WRITE  . . . . . . . . .	Number	 40000000h   
+GetCommandLine . . . . . . . . .	Text   	 GetCommandLineA
+HANDLE . . . . . . . . . . . . .	Text   	 DWORD
+HEAP_GENERATE_EXCEPTIONS . . . .	Number	 00000004h   
+HEAP_GROWABLE  . . . . . . . . .	Number	 00000002h   
+HEAP_NO_SERIALIZE  . . . . . . .	Number	 00000001h   
+HEAP_REALLOC_IN_PLACE_ONLY . . .	Number	 00000010h   
+HEAP_ZERO_MEMORY . . . . . . . .	Number	 00000008h   
+IDABORT  . . . . . . . . . . . .	Number	 00000003h   
+IDCANCEL . . . . . . . . . . . .	Number	 00000002h   
+IDCLOSE  . . . . . . . . . . . .	Number	 00000008h   
+IDCONTINUE . . . . . . . . . . .	Number	 0000000Bh   
+IDHELP . . . . . . . . . . . . .	Number	 00000009h   
+IDIGNORE . . . . . . . . . . . .	Number	 00000005h   
+IDNO . . . . . . . . . . . . . .	Number	 00000007h   
+IDOK . . . . . . . . . . . . . .	Number	 00000001h   
+IDRETRY  . . . . . . . . . . . .	Number	 00000004h   
+IDTIMEOUT  . . . . . . . . . . .	Number	 00007D00h   
+IDTRYAGAIN . . . . . . . . . . .	Number	 0000000Ah   
+IDYES  . . . . . . . . . . . . .	Number	 00000006h   
+INVALID_HANDLE_VALUE . . . . . .	Number	 -00000001h   
+KBDOWN_FLAG  . . . . . . . . . .	Number	 00000001h   
+KEY_EVENT  . . . . . . . . . . .	Number	 00000001h   
+KEY_MASKS  . . . . . . . . . . .	Number	 0000001Fh   
+LEFT_ALT_PRESSED . . . . . . . .	Number	 00000002h   
+LEFT_CTRL_PRESSED  . . . . . . .	Number	 00000008h   
+MB_ABORTRETRYIGNORE  . . . . . .	Number	 00000002h   
+MB_APPLMODAL . . . . . . . . . .	Number	 00000000h   
+MB_CANCELTRYCONTINUE . . . . . .	Number	 00000006h   
+MB_DEFBUTTON1  . . . . . . . . .	Number	 00000000h   
+MB_DEFBUTTON2  . . . . . . . . .	Number	 00000100h   
+MB_DEFBUTTON3  . . . . . . . . .	Number	 00000200h   
+MB_DEFBUTTON4  . . . . . . . . .	Number	 00000300h   
+MB_HELP  . . . . . . . . . . . .	Number	 00004000h   
+MB_ICONASTERISK  . . . . . . . .	Number	 00000040h   
+MB_ICONERROR . . . . . . . . . .	Number	 00000010h   
+MB_ICONEXCLAMATION . . . . . . .	Number	 00000030h   
+MB_ICONHAND  . . . . . . . . . .	Number	 00000010h   
+MB_ICONINFORMATION . . . . . . .	Number	 00000040h   
+MB_ICONQUESTION  . . . . . . . .	Number	 00000020h   
+MB_ICONSTOP  . . . . . . . . . .	Number	 00000010h   
+MB_ICONWARNING . . . . . . . . .	Number	 00000030h   
+MB_OKCANCEL  . . . . . . . . . .	Number	 00000001h   
+MB_OK  . . . . . . . . . . . . .	Number	 00000000h   
+MB_RETRYCANCEL . . . . . . . . .	Number	 00000005h   
+MB_SYSTEMMODAL . . . . . . . . .	Number	 00001000h   
+MB_TASKMODAL . . . . . . . . . .	Number	 00002000h   
+MB_USERICON  . . . . . . . . . .	Number	 00000080h   
+MB_YESNOCANCEL . . . . . . . . .	Number	 00000003h   
+MB_YESNO . . . . . . . . . . . .	Number	 00000004h   
+MENU_EVENT . . . . . . . . . . .	Number	 00000008h   
+MOUSE_EVENT  . . . . . . . . . .	Number	 00000002h   
+Mensaje1 . . . . . . . . . . . .	Byte	 00000278 _DATA	
+MensajeY1  . . . . . . . . . . .	Byte	 000002A0 _DATA	
+MensajeY2  . . . . . . . . . . .	Byte	 000002BC _DATA	
+MessageBox . . . . . . . . . . .	Text   	 MessageBoxA
+NULL . . . . . . . . . . . . . .	Number	 00000000h   
+NUMLOCK_ON . . . . . . . . . . .	Number	 00000020h   
+OPEN_ALWAYS  . . . . . . . . . .	Number	 00000004h   
+OPEN_EXISTING  . . . . . . . . .	Number	 00000003h   
+PeekConsoleInput . . . . . . . .	Text   	 PeekConsoleInputA
+RIGHT_ALT_PRESSED  . . . . . . .	Number	 00000001h   
+RIGHT_CTRL_PRESSED . . . . . . .	Number	 00000004h   
+ReadConsoleInput . . . . . . . .	Text   	 ReadConsoleInputA
+ReadConsole  . . . . . . . . . .	Text   	 ReadConsoleA
+SCROLLLOCK_ON  . . . . . . . . .	Number	 00000040h   
+SHIFT_MASK . . . . . . . . . . .	Number	 00000010h   
+SHIFT_PRESSED  . . . . . . . . .	Number	 00000010h   
+STD_ERROR_HANDLE . . . . . . . .	Number	 -0000000Ch   
+STD_INPUT_HANDLE . . . . . . . .	Number	 -0000000Ah   
+STD_OUTPUT_HANDLE  . . . . . . .	Number	 -0000000Bh   
+SetConsoleTitle  . . . . . . . .	Text   	 SetConsoleTitleA
+TAB  . . . . . . . . . . . . . .	Number	 00000009h   
+TRUE . . . . . . . . . . . . . .	Number	 00000001h   
+TRUNCATE_EXISTING  . . . . . . .	Number	 00000005h   
+VK_11  . . . . . . . . . . . . .	Number	 000000BDh   
+VK_12  . . . . . . . . . . . . .	Number	 000000BBh   
+VK_ADD . . . . . . . . . . . . .	Number	 0000006Bh   
+VK_BACK  . . . . . . . . . . . .	Number	 00000008h   
+VK_CANCEL  . . . . . . . . . . .	Number	 00000003h   
+VK_CAPITAL . . . . . . . . . . .	Number	 00000014h   
+VK_CLEAR . . . . . . . . . . . .	Number	 0000000Ch   
+VK_CONTROL . . . . . . . . . . .	Number	 00000011h   
+VK_DECIMAL . . . . . . . . . . .	Number	 0000006Eh   
+VK_DELETE  . . . . . . . . . . .	Number	 0000002Eh   
+VK_DIVIDE  . . . . . . . . . . .	Number	 0000006Fh   
+VK_DOWN  . . . . . . . . . . . .	Number	 00000028h   
+VK_END . . . . . . . . . . . . .	Number	 00000023h   
+VK_ESCAPE  . . . . . . . . . . .	Number	 0000001Bh   
+VK_EXECUTE . . . . . . . . . . .	Number	 0000002Bh   
+VK_F10 . . . . . . . . . . . . .	Number	 00000079h   
+VK_F11 . . . . . . . . . . . . .	Number	 0000007Ah   
+VK_F12 . . . . . . . . . . . . .	Number	 0000007Bh   
+VK_F13 . . . . . . . . . . . . .	Number	 0000007Ch   
+VK_F14 . . . . . . . . . . . . .	Number	 0000007Dh   
+VK_F15 . . . . . . . . . . . . .	Number	 0000007Eh   
+VK_F16 . . . . . . . . . . . . .	Number	 0000007Fh   
+VK_F17 . . . . . . . . . . . . .	Number	 00000080h   
+VK_F18 . . . . . . . . . . . . .	Number	 00000081h   
+VK_F19 . . . . . . . . . . . . .	Number	 00000082h   
+VK_F1  . . . . . . . . . . . . .	Number	 00000070h   
+VK_F20 . . . . . . . . . . . . .	Number	 00000083h   
+VK_F21 . . . . . . . . . . . . .	Number	 00000084h   
+VK_F22 . . . . . . . . . . . . .	Number	 00000085h   
+VK_F23 . . . . . . . . . . . . .	Number	 00000086h   
+VK_F24 . . . . . . . . . . . . .	Number	 00000087h   
+VK_F2  . . . . . . . . . . . . .	Number	 00000071h   
+VK_F3  . . . . . . . . . . . . .	Number	 00000072h   
+VK_F4  . . . . . . . . . . . . .	Number	 00000073h   
+VK_F5  . . . . . . . . . . . . .	Number	 00000074h   
+VK_F6  . . . . . . . . . . . . .	Number	 00000075h   
+VK_F7  . . . . . . . . . . . . .	Number	 00000076h   
+VK_F8  . . . . . . . . . . . . .	Number	 00000077h   
+VK_F9  . . . . . . . . . . . . .	Number	 00000078h   
+VK_HELP  . . . . . . . . . . . .	Number	 0000002Fh   
+VK_HOME  . . . . . . . . . . . .	Number	 00000024h   
+VK_INSERT  . . . . . . . . . . .	Number	 0000002Dh   
+VK_LBUTTON . . . . . . . . . . .	Number	 00000001h   
+VK_LCONTROL  . . . . . . . . . .	Number	 000000A2h   
+VK_LEFT  . . . . . . . . . . . .	Number	 00000025h   
+VK_LMENU . . . . . . . . . . . .	Number	 000000A4h   
+VK_LSHIFT  . . . . . . . . . . .	Number	 000000A0h   
+VK_MENU  . . . . . . . . . . . .	Number	 00000012h   
+VK_MULTIPLY  . . . . . . . . . .	Number	 0000006Ah   
+VK_NEXT  . . . . . . . . . . . .	Number	 00000022h   
+VK_NUMLOCK . . . . . . . . . . .	Number	 00000090h   
+VK_NUMPAD0 . . . . . . . . . . .	Number	 00000060h   
+VK_NUMPAD1 . . . . . . . . . . .	Number	 00000061h   
+VK_NUMPAD2 . . . . . . . . . . .	Number	 00000062h   
+VK_NUMPAD3 . . . . . . . . . . .	Number	 00000063h   
+VK_NUMPAD4 . . . . . . . . . . .	Number	 00000064h   
+VK_NUMPAD5 . . . . . . . . . . .	Number	 00000065h   
+VK_NUMPAD6 . . . . . . . . . . .	Number	 00000066h   
+VK_NUMPAD7 . . . . . . . . . . .	Number	 00000067h   
+VK_NUMPAD8 . . . . . . . . . . .	Number	 00000068h   
+VK_NUMPAD9 . . . . . . . . . . .	Number	 00000069h   
+VK_PAUSE . . . . . . . . . . . .	Number	 00000013h   
+VK_PRINT . . . . . . . . . . . .	Number	 0000002Ah   
+VK_PRIOR . . . . . . . . . . . .	Number	 00000021h   
+VK_RBUTTON . . . . . . . . . . .	Number	 00000002h   
+VK_RCONTROL  . . . . . . . . . .	Number	 000000A3h   
+VK_RETURN  . . . . . . . . . . .	Number	 0000000Dh   
+VK_RIGHT . . . . . . . . . . . .	Number	 00000027h   
+VK_RMENU . . . . . . . . . . . .	Number	 000000A5h   
+VK_RSHIFT  . . . . . . . . . . .	Number	 000000A1h   
+VK_SCROLL  . . . . . . . . . . .	Number	 00000091h   
+VK_SEPARATER . . . . . . . . . .	Number	 0000006Ch   
+VK_SHIFT . . . . . . . . . . . .	Number	 00000010h   
+VK_SNAPSHOT  . . . . . . . . . .	Number	 0000002Ch   
+VK_SPACE . . . . . . . . . . . .	Number	 00000020h   
+VK_SUBTRACT  . . . . . . . . . .	Number	 0000006Dh   
+VK_TAB . . . . . . . . . . . . .	Number	 00000009h   
+VK_UP  . . . . . . . . . . . . .	Number	 00000026h   
+WINDOW_BUFFER_SIZE_EVENT . . . .	Number	 00000004h   
+WriteConsoleOutputCharacter  . .	Text   	 WriteConsoleOutputCharacterA
+WriteConsole . . . . . . . . . .	Text   	 WriteConsoleA
+arraysitoY1  . . . . . . . . . .	QWord	 00000350 _DATA	
+arraysitoY2  . . . . . . . . . .	QWord	 000003A0 _DATA	
+arraysito  . . . . . . . . . . .	QWord	 00000300 _DATA	
+base1  . . . . . . . . . . . . .	DWord	 00000414 _DATA	
+base2  . . . . . . . . . . . . .	DWord	 00000418 _DATA	
+black  . . . . . . . . . . . . .	Number	 00000000h   
+blue . . . . . . . . . . . . . .	Number	 00000001h   
+brown  . . . . . . . . . . . . .	Number	 00000006h   
+cont1  . . . . . . . . . . . . .	DWord	 00000408 _DATA	
+cont2  . . . . . . . . . . . . .	DWord	 0000040C _DATA	
+cyan . . . . . . . . . . . . . .	Number	 00000003h   
+desv1  . . . . . . . . . . . . .	DWord	 00000424 _DATA	
+desv2  . . . . . . . . . . . . .	DWord	 00000428 _DATA	
+divi . . . . . . . . . . . . . .	DWord	 00000440 _DATA	
+encab  . . . . . . . . . . . . .	Byte	 0000003C _DATA	
+espac  . . . . . . . . . . . . .	Byte	 0000003A _DATA	
+exit . . . . . . . . . . . . . .	Text   	 INVOKE ExitProcess,0
+final  . . . . . . . . . . . . .	Byte	 000002D8 _DATA	
+gray . . . . . . . . . . . . . .	Number	 00000008h   
+green  . . . . . . . . . . . . .	Number	 00000002h   
+lightBlue  . . . . . . . . . . .	Number	 00000009h   
+lightCyan  . . . . . . . . . . .	Number	 0000000Bh   
+lightGray  . . . . . . . . . . .	Number	 00000007h   
+lightGreen . . . . . . . . . . .	Number	 0000000Ah   
+lightMagenta . . . . . . . . . .	Number	 0000000Dh   
+lightRed . . . . . . . . . . . .	Number	 0000000Ch   
+magenta  . . . . . . . . . . . .	Number	 00000005h   
+media  . . . . . . . . . . . . .	DWord	 00000410 _DATA	
+multi2 . . . . . . . . . . . . .	DWord	 000003F8 _DATA	
+multi  . . . . . . . . . . . . .	DWord	 000003F4 _DATA	
+n1 . . . . . . . . . . . . . . .	DWord	 000003FC _DATA	
+n2 . . . . . . . . . . . . . . .	DWord	 00000400 _DATA	
+pear . . . . . . . . . . . . . .	DWord	 00000438 _DATA	
+potencia1  . . . . . . . . . . .	DWord	 0000041C _DATA	
+potencia2  . . . . . . . . . . .	DWord	 00000420 _DATA	
+printdesv  . . . . . . . . . . .	Byte	 00000000 _DATA	
+printmed . . . . . . . . . . . .	Byte	 00000010 _DATA	
+printper . . . . . . . . . . . .	Byte	 00000020 _DATA	
+rayitas  . . . . . . . . . . . .	Byte	 00000079 _DATA	
+red  . . . . . . . . . . . . . .	Number	 00000004h   
+rest . . . . . . . . . . . . . .	DWord	 00000444 _DATA	
+resultado1 . . . . . . . . . . .	DWord	 0000042C _DATA	
+resultado2 . . . . . . . . . . .	DWord	 00000430 _DATA	
+resultado3 . . . . . . . . . . .	DWord	 00000434 _DATA	
+r  . . . . . . . . . . . . . . .	DWord	 000003F0 _DATA	
+sep  . . . . . . . . . . . . . .	Byte	 000002FB _DATA	
+sumpp  . . . . . . . . . . . . .	DWord	 0000043C _DATA	
+tetr . . . . . . . . . . . . . .	Byte	 00000030 _DATA	
+white  . . . . . . . . . . . . .	Number	 0000000Fh   
+wsprintf . . . . . . . . . . . .	Text   	 wsprintfA
+x  . . . . . . . . . . . . . . .	DWord	 00000404 _DATA	
+yellow . . . . . . . . . . . . .	Number	 0000000Eh   
+
+	   1 Warnings
+	   0 Errors
